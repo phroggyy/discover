@@ -1,0 +1,25 @@
+{
+    "name": "phroggyy/discover",
+    "description": "A vastly simplified ElasticSearch integration for Laravel",
+    "require": {
+        "laravel/framework": "~5.1",
+        "elasticsearch/elasticsearch": "2.1.5"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^5.3"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Leo Sjöberg",
+            "email": "leo.sjoberg@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Phroggyy\\Discover\\": "src/"
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
