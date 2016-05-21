@@ -23,4 +23,11 @@ interface Searchable {
      * @return string|null
      */
     public function getDefaultSearchField();
+
+    /**
+     * Retrieve the fields to be indexed.
+     *
+     * @return array
+     */
+    public function getDocumentFields();
 }

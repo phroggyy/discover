@@ -35,9 +35,19 @@ interface DiscoverService
     public function buildSearchQuery(Searchable $model, array $query);
 
     /**
+     * Search the model's related index.
+     *
      * @param \Phroggyy\Discover\Contracts\Searchable $model
      * @param $query
      * @return mixed
      */
     public function search(Searchable $model, $query);
+
+    /**
+     * Save a model's document properties.
+     * 
+     * @param  \Phroggyy\Discover\Contracts\Searchable $model
+     * @return  void
+     */
+    public function saveDocument(Searchable $model);
 }

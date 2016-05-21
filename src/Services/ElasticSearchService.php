@@ -4,12 +4,17 @@ namespace Phroggyy\Discover\Services;
 
 use Elasticsearch\Client;
 use Phroggyy\Discover\Contracts\Searchable;
+use Phroggyy\Discover\Contracts\Services\DiscoverService;
 use Phroggyy\Discover\Contracts\Exceptions\ClassNotFoundException;
-use Phroggyy\Discover\Discover\Contracts\Services\DiscoverService;
 use Phroggyy\Discover\Contracts\Exceptions\NonSearchableClassException;
 
 class ElasticSearchService implements DiscoverService
 {
+    /**
+     * The ElasticSearch client.
+     *
+     * @var \Elasticsearch\Client
+     */
     protected $client;
 
     /**
@@ -80,6 +85,48 @@ class ElasticSearchService implements DiscoverService
         }
 
         return $this->client->search($this->buildSearchQuery($query));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function saveDocument(Searchable $model)
+    {
+        $document = $this->constructDocument($model);
+
+        if (! $this->indexIsNested($model->getSearchIndex())) {
+            $this->client->index($document);
+
+            return;
+        }
+
+        list($index, $type) = $this->retrieveNestedIndex($model->getSearchIndex());
+    }
+
+    /**
+     * Construct the document to save.
+     *
+     * @param  \Phroggyy\Discover\Contracts\Searchable $model
+     * @return array
+     */
+    private function constructDocument(Searchable $model)
+    {
+        $elasticDocument = [
+            'index' => $model->getSearchIndex(),
+            'type'  => $model->getSearchType(),
+            'id'    => $model->id,
+            'body'  => [],
+        ];
+
+        foreach ($model->getDocumentFields() as $elasticField) {
+            $field = $model->{$elasticField};
+            if ($field instanceof Carbon || $field instanceof \DateTime) {
+                $field = $field->format('Y-m-d H:i:s');
+            }
+            $elasticDocument['body'][$elasticField] = $field;
+        }
+
+        return $elasticDocument;
     }
 
 }
