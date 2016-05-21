@@ -11,8 +11,8 @@ class DiscoverServiceProvider extends ServiceProvider
 {
     public function register()
     {
-        $this->app->bind(Client::class, function ($app) {
-            return new Manager($app);
+        $this->app->singleton(Client::class, function ($app) {
+            return new Manager($app, new Factory);
         });
 
         $this->app->bind(DiscoverService::class, function ($app) {
