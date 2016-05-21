@@ -6,6 +6,7 @@ use Elasticsearch\Client;
 use Phroggyy\Discover\Contracts\Searchable;
 use Phroggyy\Discover\Contracts\Services\DiscoverService;
 use Phroggyy\Discover\Contracts\Exceptions\ClassNotFoundException;
+use Phroggyy\Discover\Contracts\Exceptions\NoNestedIndexException;
 use Phroggyy\Discover\Contracts\Exceptions\NonSearchableClassException;
 
 class ElasticSearchService implements DiscoverService
