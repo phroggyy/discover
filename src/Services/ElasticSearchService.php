@@ -32,7 +32,7 @@ class ElasticSearchService implements DiscoverService
      */
     public function indexIsNested($index)
     {
-        return strpos($this->getElasticIndex(), '/') !== false;
+        return strpos($index, '/') !== false;
     }
 
     /**
