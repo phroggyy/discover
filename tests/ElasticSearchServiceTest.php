@@ -15,6 +15,18 @@ class ElasticSearchServiceTest extends PHPUnit_Framework_TestCase
     public function setUp()
     {
         $client = m::mock(Client::class);
+        $client->shouldReceive('search')
+            ->with([
+                'index' => 'foo',
+                'type'  => 'bar',
+                'body'  => [
+                    'query' => [
+                        'match' => ['foo' => 'bar'],
+                    ],
+                ],
+            ])->andReturn([
+                ['foo' => 'bar']
+            ]);
 
         $this->elasticService = new ElasticSearchService($client);
     }
@@ -53,6 +65,30 @@ class ElasticSearchServiceTest extends PHPUnit_Framework_TestCase
         $result = $this->elasticService->retrieveNestedIndex('SearchableFoo/bar');
         $this->assertEquals(['foo', 'bar'], $result);
     }
+
+    public function testItBuildsACorrectSearchQuery()
+    {
+        $query = ['foo' => 'bar'];
+
+        $truth = [
+            'index' => 'foo',
+            'type'  => 'bar',
+            'body'  => [
+                'query' => [
+                    'match' => $query,
+                ],
+            ],
+        ];
+
+        $this->assertEquals($truth, $this->elasticService->buildSearchQuery(new SearchableFoo, $query));
+    }
+
+    public function testItPerformsASearch()
+    {
+        $this->assertEquals([
+            ['foo' => 'bar']
+        ], $this->elasticService->search(new SearchableFoo, ['foo' => 'bar']));
+    }
 }
 
 class NonSearchableFoo
@@ -67,5 +103,10 @@ class SearchableFoo implements Searchable
     public function getSearchIndex()
     {
         return 'foo';
+    }
+
+    public function getSearchType()
+    {
+        return 'bar';
     }
 }

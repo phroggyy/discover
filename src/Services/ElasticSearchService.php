@@ -85,7 +85,7 @@ class ElasticSearchService implements DiscoverService
             $query = [$this->defaultSearchField => $query];
         }
 
-        return $this->client->search($this->buildSearchQuery($query));
+        return $this->client->search($this->buildSearchQuery($model, $query));
     }
 
     /**
