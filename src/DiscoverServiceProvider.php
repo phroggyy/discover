@@ -16,7 +16,7 @@ class DiscoverServiceProvider extends ServiceProvider
         });
 
         $this->app->bind(DiscoverService::class, function ($app) {
-            return new ElasticSearchService($this->app->make(Client::class));
+            return new ElasticSearchService($this->app->make(Client::class)->connection());
         });
     }
 
