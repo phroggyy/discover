@@ -102,6 +102,46 @@ class ElasticSearchService implements DiscoverService
         }
 
         list($index, $type) = $this->retrieveNestedIndex($model->getSearchIndex());
+        $class = $this->retrieveParentClass($model->getSearchIndex());
+
+        $parent = $model->belongsTo($class, null, null, class_basename($class))->getResults();
+
+        $parentData = $this->client->get([
+            'id'    => $parent->getKey(),
+            'type'  => $parent->getSearchType(),
+            'index' => $parent->getSearchIndex(),
+        ])['_source'];
+
+        if (! isset($parentData[$type])) {
+            $parentData[$type] = [];
+        }
+
+        $children = collect($parentData[$type]);
+
+        if ($child = $children->first(function ($child) use ($model) {
+            return $child['id'] == $model->getKey();
+        })) {
+            $newChildren = $children->map(function ($child) use ($model) {
+                if ($child['id'] == $model->getKey()) {
+                    return $model->toArray();
+                }
+
+                return $child;
+            });
+        } else {
+            $newChildren = $children->push($model->documentToArray());
+        }
+
+        $this->client->update([
+            'id'    => $parent->getKey(),
+            'type'  => $parent->getSearchType(),
+            'index' => $parent->getSearchIndex(),
+            'body'  => [
+                'doc' => [
+                    $type => $newChildren,
+                ],
+            ],
+        ]);
     }
 
     /**
@@ -128,6 +168,17 @@ class ElasticSearchService implements DiscoverService
         }
 
         return $elasticDocument;
+    }
+
+    /**
+     * Retrieve the parent class of the index.
+     *
+     * @param  string  $getSearchIndex
+     * @return string
+     */
+    private function retrieveParentClass($getSearchIndex)
+    {
+        return explode('/', $getSearchIndex)[0];
     }
 
 }
