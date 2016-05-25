@@ -7,6 +7,8 @@
 
 namespace Phroggyy\Discover;
 
+use Illuminate\Foundation\Application;
+
 class Manager
 {
 
@@ -32,7 +34,7 @@ class Manager
     protected $connections = [];
 
     /**
-     * @param  Application $app
+     * @param  \Illuminate\Foundation\Application $app
      * @param  \Phroggyy\Discover\Factory $factory
      */
     public function __construct(Application $app, Factory $factory)
