@@ -68,7 +68,7 @@ class Manager
      */
     public function getDefaultConnection()
     {
-        return $this->app['config']['elasticsearch.defaultConnection'];
+        return $this->app['config']['discover.defaultConnection'];
     }
 
     /**
@@ -78,7 +78,7 @@ class Manager
      */
     public function setDefaultConnection($connection)
     {
-        $this->app['config']['elasticsearch.defaultConnection'] = $connection;
+        $this->app['config']['discover.defaultConnection'] = $connection;
     }
 
     /**
@@ -102,10 +102,10 @@ class Manager
      */
     protected function getConfig($name)
     {
-        $connections = $this->app['config']['elasticsearch.connections'];
+        $connections = $this->app['config']['discover.connections'];
 
         if (is_null($config = array_get($connections, $name))) {
-            throw new \InvalidArgumentException("Elasticsearch connection [$name] not configured.");
+            throw new \InvalidArgumentException("Discover connection [$name] not configured.");
         }
 
         return $config;
