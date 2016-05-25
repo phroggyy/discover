@@ -30,4 +30,11 @@ interface Searchable {
      * @return array
      */
     public function getDocumentFields();
+
+    /**
+     * Convert a model with properties to an array for indexing.
+     *
+     * @return array
+     */
+    public function documentToArray();
 }

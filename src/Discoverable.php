@@ -10,20 +10,6 @@ use Phroggyy\Discover\Contracts\Services\DiscoverService;
 trait Discoverable
 {
     /**
-     * The name of the index for the model.
-     *
-     * @var string
-     */
-    protected $documentIndex;
-
-    /**
-     * The type of the model in the document.
-     *
-     * @var string
-     */
-    protected $documentType;
-
-    /**
      * The field to query if none is provided.
      *
      * @var string
@@ -31,28 +17,12 @@ trait Discoverable
     protected $defaultSearchField;
 
     /**
-     * The fields to store in a document db.
-     *
-     * @var array
-     */
-    protected $documentFields;
-
-    /**
-     * The Discover service to use for search.
-     *
-     * @var \Phroggyy\Discover\Contracts\Services\DiscoverService
-     */
-    protected static $discoverer;
-
-    /**
      * Boot the trait and setup the required event handler.
      */
     public static function bootDiscoverable()
     {
-        static::$discoverer = Application::getInstance()->make(DiscoverService::class);
-
         static::saved(function (Searchable $model) {
-            static::$discoverer->saveDocument($model);
+            app(DiscoverService::class)->saveDocument($model);
         });
     }
 
@@ -61,7 +31,11 @@ trait Discoverable
      */
     public function getSearchIndex()
     {
-        return $this->documentIndex ?: $this->getTable();
+        if (property_exists($this, 'documentIndex')) {
+            return $this->documentIndex;
+        }
+
+        return $this->getTable();
     }
 
     /**
@@ -69,7 +43,11 @@ trait Discoverable
      */
     public function getSearchType()
     {
-        return $this->documentType ?: Str::singular($this->getTable());
+        if (property_exists($this, 'documentType')) {
+            return $this->documentType;
+        }
+
+        return Str::singular($this->getTable());
     }
 
     /**
@@ -77,6 +55,10 @@ trait Discoverable
      */
     public function getDefaultSearchField()
     {
+        if (! property_exists($this, 'defaultSearchField')) {
+            return null;
+        }
+
         return $this->defaultSearchField;
     }
 
@@ -85,6 +67,24 @@ trait Discoverable
      */
     public function getDocumentFields()
     {
-        return $this->documentFields;
+        if (property_exists($this, 'documentFields')) {
+            return $this->documentFields;
+        }
+
+        // If the user has not explicitly stated which properties
+        // of the model they want discoverable to index, it is
+        // assumed they wish to index all of them, so we do.
+        return array_keys($this->attributesToArray());
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function documentToArray()
+    {
+        return collect($this->toArray())
+            ->filter(function ($value, $property) {
+                return in_array($property, $this->getDocumentFields());
+            })->toArray();
     }
 }
