@@ -6,7 +6,7 @@
 
 _Discover is a package aimed at the [Laravel Framework](https://laravel.com), although with some modification should be usable standalone._
 
-The year is 2016, and _everyone_ wants searchable _everything_. People want to search all blog posts, all comments, all pages, _everything_, by a simple search term. Of course, you've never really dealt with this kind of search before; sure, you can do a full-text search in MySQL, but even though it's possible, it's not the best idea. Instead, you've probably come to the conclusion that you should use a document database, such as Elasticsearch. Having never used it before, you imagine it can't be much harder than any other database, and then you get stuck. For two ~days~ weeks.
+The year is 2016, and _everyone_ wants searchable _everything_. People want to search all blog posts, all comments, all pages, _everything_, by a simple search term. Of course, you've never really dealt with this kind of search before; sure, you can do a full-text search in MySQL, but even though it's possible, it's not the best idea. Instead, you've probably come to the conclusion that you should use a document database, such as Elasticsearch. Having never used it before, you imagine it can't be much harder than any other database, and then you get stuck. For two ~~days~~ weeks.
 
 Elasticsearch is a wonderful and incredibly powerful tool. However, it can also be very daunting to get started with at first, since using the official PHP library often results in doing about 7 nested arrays to do something remotely useful. Of course, that's pretty awful and doesn't really wanna make you use Elasticsearch, and that's why I built Discover.
 
