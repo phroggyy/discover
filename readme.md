@@ -107,3 +107,13 @@ class Comment extends Model implements Searchable
 ```
 
 This will ensure that whenever a comment is saved with Eloquent, it's also indexed in Elasticsearch.
+
+## General Note
+
+There's still plenty to do in this package to make it feature complete and more user friendly, and PRs are more than welcome, this is just a start to do the bare minimum I required to build a product.
+
+## To-do
+
+  - [ ]  Automatically add the primary key to be indexed for subdocuments
+  - [ ]  Make `down` migrations possible through moving the alias and then deleting the created index.
+  - [ ] Make subdocument querying (searching) possible
