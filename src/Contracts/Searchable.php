@@ -37,4 +37,12 @@ interface Searchable {
      * @return array
      */
     public function documentToArray();
+
+    /**
+     * Search the document database by a query.
+     *
+     * @param  string|array  $query
+     * @return mixed
+     */
+    public static function search($query);
 }

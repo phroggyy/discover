@@ -81,8 +81,8 @@ class ElasticSearchService implements DiscoverService
      */
     public function search(Searchable $model, $query)
     {
-        if (! is_array($query) && $this->defaultSearchField) {
-            $query = [$this->defaultSearchField => $query];
+        if (! is_array($query) && $field = $model->getDefaultSearchField()) {
+            $query = [$field => $query];
         }
 
         return $this->client->search($this->buildSearchQuery($model, $query));

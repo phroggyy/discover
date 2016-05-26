@@ -87,4 +87,12 @@ trait Discoverable
                 return in_array($property, $this->getDocumentFields());
             })->toArray();
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function search($query)
+    {
+        app(DiscoverService::class)->search(new static, $query);
+    }
 }
