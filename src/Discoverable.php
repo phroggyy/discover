@@ -9,12 +9,6 @@ use Phroggyy\Discover\Contracts\Services\DiscoverService;
 
 trait Discoverable
 {
-    /**
-     * The field to query if none is provided.
-     *
-     * @var string
-     */
-    protected $defaultSearchField;
 
     /**
      * Boot the trait and setup the required event handler.

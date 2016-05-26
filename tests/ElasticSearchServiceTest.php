@@ -103,18 +103,9 @@ class SearchableFoo implements Searchable
 {
     use \Phroggyy\Discover\Discoverable;
 
-    public function getSearchIndex()
-    {
-        return 'foo';
-    }
+    protected $documentIndex = 'foo';
 
-    public function getSearchType()
-    {
-        return 'bar';
-    }
+    protected $documentType = 'bar';
 
-    public function getDefaultSearchField()
-    {
-        return 'foo';
-    }
+    protected $defaultSearchField = 'foo';
 }
