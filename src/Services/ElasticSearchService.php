@@ -3,6 +3,7 @@
 namespace Phroggyy\Discover\Services;
 
 use Elasticsearch\Client;
+use Illuminate\Support\Collection;
 use Phroggyy\Discover\Contracts\Searchable;
 use Phroggyy\Discover\Contracts\Services\DiscoverService;
 use Phroggyy\Discover\Contracts\Exceptions\ClassNotFoundException;
@@ -65,12 +66,34 @@ class ElasticSearchService implements DiscoverService
      */
     public function buildSearchQuery(Searchable $model, array $query)
     {
+        $index = $model->getSearchIndex();
+
+        $query = $this->structureMatches($model, $query);
+
+        if ($this->indexIsNested($index)) {
+            $type = $this->retrieveParentType($index);
+            list($index, $key) = $this->retrieveNestedIndex($index);
+
+            $query = [
+                'nested' => [
+                    'path' => $key,
+                    'query' => [
+                        'bool' => [
+                            'must' => $query,
+                        ],
+                    ],
+                ],
+            ];
+        }
+
         return [
-            'index' => $model->getSearchIndex(),
+            'index' => $index,
             'type'  => $model->getSearchType(),
             'body'  => [
                 'query' => [
-                    'match' => $query,
+                    'bool' => [
+                        'must' => $query
+                    ],
                 ],
             ],
         ];
@@ -179,6 +202,48 @@ class ElasticSearchService implements DiscoverService
     private function retrieveParentClass($getSearchIndex)
     {
         return explode('/', $getSearchIndex)[0];
+    }
+
+    /**
+     * Retrieve the search type of the parent.
+     *
+     * @param  $index
+     * @return string
+     */
+    private function retrieveParentType($index)
+    {
+        return (new $this->retrieveParentClass($index))->getSearchType();
+    }
+
+    /**
+     * Structure the matches array.
+     *
+     * @param  \Phroggyy\Discover\Contracts\Searchable $model
+     * @param  array $query
+     * @return array|string
+     */
+    private function structureMatches(Searchable $model, $query)
+    {
+        $key = '';
+        if ($this->indexIsNested($model->getSearchIndex())) {
+            $key = $this->retrieveNestedIndex($model->getSearchIndex())[1].'.';
+        }
+
+        if (is_string($query)) {
+            return [[
+                'match' => [$key.$model->getDefaultSearchField() => $query],
+            ]];
+        }
+
+        $query = Collection::make($query);
+
+        return $query->map(function ($constraint, $property) use ($key) {
+            if (strpos($property, '.') === false) {
+                $property = $key.$property;
+            }
+
+            return ['match' => [$constraint => $property]];
+        })->all();
     }
 
 }
