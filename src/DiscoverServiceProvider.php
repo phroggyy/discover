@@ -13,12 +13,16 @@ class DiscoverServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__.'/../config/discover.php', 'discover');
 
-        $this->app->singleton(Client::class, function ($app) {
+        $this->app->singleton(Manager::class, function ($app) {
             return new Manager($app, new Factory);
         });
 
+        $this->app->bind(Client::class, function ($app) {
+            return $app->make(Manager::class)->connection();
+        });
+
         $this->app->bind(DiscoverService::class, function ($app) {
-            return new ElasticSearchService($this->app->make(Client::class)->connection());
+            return new ElasticSearchService($this->app->make(Client::class));
         });
     }
 
