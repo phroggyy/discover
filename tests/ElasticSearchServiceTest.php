@@ -88,6 +88,9 @@ class ElasticSearchServiceTest extends PHPUnit_Framework_TestCase
         $this->assertEquals([
             ['foo' => 'bar']
         ], $this->elasticService->search(new SearchableFoo, ['foo' => 'bar']));
+        $this->assertEquals([
+            ['foo' => 'bar'],
+        ], $this->elasticService->search(new SearchableFoo, 'bar'));
     }
 }
 
@@ -108,5 +111,10 @@ class SearchableFoo implements Searchable
     public function getSearchType()
     {
         return 'bar';
+    }
+
+    public function getDefaultSearchField()
+    {
+        return 'foo';
     }
 }
