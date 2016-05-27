@@ -143,14 +143,17 @@ class ElasticSearchService implements DiscoverService
             $parentData[$type] = [];
         }
 
-        $children = collect($parentData[$type]);
+        $children = Collection::make($parentData[$type]);
 
         if ($child = $children->first(function ($child) use ($model) {
-            return $child['id'] == $model->getKey();
+            return $child[$model->getKeyName()] == $model->getKey();
         })) {
             $newChildren = $children->map(function ($child) use ($model) {
-                if ($child['id'] == $model->getKey()) {
-                    return $model->toArray();
+                if ($child[$model->getKeyName()] == $model->getKey()) {
+                    $child = $model->documentToArray();
+                    if (! isset($document[$model->getKeyName()])) {
+                        $child[$model->getKeyName()] = $model->getKey();
+                    }
                 }
 
                 return $child;
