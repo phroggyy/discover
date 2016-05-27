@@ -134,6 +134,7 @@ class ElasticSearchServiceTest extends PHPUnit_Framework_TestCase
         ];
 
         $this->assertEquals($truth, $this->elasticService->buildSearchQuery(new SearchableFooBar, ['foo' => 'bar']));
+        $this->assertEquals($truth, $this->elasticService->buildSearchQuery(new SearchableFooBar, [['match' => ['foobar.foo' => 'bar']]]));
     }
 }
 

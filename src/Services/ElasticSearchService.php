@@ -3,6 +3,7 @@
 namespace Phroggyy\Discover\Services;
 
 use Elasticsearch\Client;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Phroggyy\Discover\Contracts\Searchable;
 use Phroggyy\Discover\Contracts\Services\DiscoverService;
@@ -233,11 +234,23 @@ class ElasticSearchService implements DiscoverService
      */
     private function structureMatches(Searchable $model, $query)
     {
+        // If the query is an array of arrays, we assume the
+        // developer knows exactly what they're doing and
+        // are providing a complete match query for us.
+        if (is_array($query) && ! Arr::isAssoc($query)) return $query;
+
         $key = '';
+
+        // If the search index turns out to actually be nested, we
+        // want to make sure we use the name of the subdocument
+        // when such a query is performed. This is necessary.
         if ($this->indexIsNested($model->getSearchIndex())) {
             $key = $this->retrieveNestedIndex($model->getSearchIndex())[1].'.';
         }
 
+        // If the query is just a string, we assume the user
+        // intends to just do a simple match query on the
+        // default search field defined in their model.
         if (is_string($query)) {
             return [[
                 'match' => [$key.$model->getDefaultSearchField() => $query],
