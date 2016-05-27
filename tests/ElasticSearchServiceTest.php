@@ -3,6 +3,7 @@
 use Elasticsearch\Client;
 use Mockery as m;
 use Phroggyy\Discover\Contracts\Searchable;
+use Phroggyy\Discover\Discoverable;
 use Phroggyy\Discover\Services\ElasticSearchService;
 
 class ElasticSearchServiceTest extends PHPUnit_Framework_TestCase
@@ -21,7 +22,13 @@ class ElasticSearchServiceTest extends PHPUnit_Framework_TestCase
                 'type'  => 'bar',
                 'body'  => [
                     'query' => [
-                        'match' => ['foo' => 'bar'],
+                        'bool' => [
+                            'must' => [
+                                [
+                                    'match' => ['foo' => 'bar']
+                                ],
+                            ],
+                        ],
                     ],
                 ],
             ])->andReturn([
@@ -75,7 +82,13 @@ class ElasticSearchServiceTest extends PHPUnit_Framework_TestCase
             'type'  => 'bar',
             'body'  => [
                 'query' => [
-                    'match' => $query,
+                    'bool' => [
+                        'must' => [
+                            [
+                                'match' => $query
+                            ],
+                        ],
+                    ],
                 ],
             ],
         ];
@@ -92,6 +105,36 @@ class ElasticSearchServiceTest extends PHPUnit_Framework_TestCase
             ['foo' => 'bar'],
         ], $this->elasticService->search(new SearchableFoo, 'bar'));
     }
+
+    public function testItBuildsANestedSearchQuery()
+    {
+        $truth = [
+            'index' => 'foo',
+            'type'  => 'bar',
+            'body'  => [
+                'query' => [
+                    'bool' => [
+                        'must' => [
+                            'nested' => [
+                                'path' => 'foobar',
+                                'query' => [
+                                    'bool' => [
+                                        'must' => [
+                                            [
+                                                'match' => ['foobar.foo' => 'bar'],
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $this->assertEquals($truth, $this->elasticService->buildSearchQuery(new SearchableFooBar, ['foo' => 'bar']));
+    }
 }
 
 class NonSearchableFoo
@@ -101,11 +144,19 @@ class NonSearchableFoo
 
 class SearchableFoo implements Searchable
 {
-    use \Phroggyy\Discover\Discoverable;
+    use Discoverable;
 
     protected $documentIndex = 'foo';
 
     protected $documentType = 'bar';
 
     protected $defaultSearchField = 'foo';
+}
+
+class SearchableFooBar implements Searchable
+{
+    use Discoverable;
+
+    protected $documentIndex = SearchableFoo::class.'/foobar';
+
 }

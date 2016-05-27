@@ -67,8 +67,8 @@ class ElasticSearchService implements DiscoverService
     public function buildSearchQuery(Searchable $model, array $query)
     {
         $index = $model->getSearchIndex();
-
         $query = $this->structureMatches($model, $query);
+        $type = null;
 
         if ($this->indexIsNested($index)) {
             $type = $this->retrieveParentType($index);
@@ -86,9 +86,13 @@ class ElasticSearchService implements DiscoverService
             ];
         }
 
+        if (! $type) {
+            $type = $model->getSearchType();
+        }
+
         return [
             'index' => $index,
-            'type'  => $model->getSearchType(),
+            'type'  => $type,
             'body'  => [
                 'query' => [
                     'bool' => [
@@ -212,7 +216,9 @@ class ElasticSearchService implements DiscoverService
      */
     private function retrieveParentType($index)
     {
-        return (new $this->retrieveParentClass($index))->getSearchType();
+        $class = $this->retrieveParentClass($index);
+
+        return (new $class)->getSearchType();
     }
 
     /**
@@ -242,8 +248,8 @@ class ElasticSearchService implements DiscoverService
                 $property = $key.$property;
             }
 
-            return ['match' => [$constraint => $property]];
-        })->all();
+            return ['match' => [$property => $constraint]];
+        })->values()->all();
     }
 
 }
