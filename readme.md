@@ -113,8 +113,9 @@ This will ensure that whenever a comment is saved with Eloquent, it's also index
 There's still plenty to do in this package to make it feature complete and more user friendly, and PRs are more than welcome, this is just a start to do the bare minimum I required to build a product.
 
 ## To-do
-  - [ ]  Make `down` migrations possible through moving the alias and then deleting the created index.
+  - [ ] Make `down` migrations possible through moving the alias and then deleting the created index.
+  - [ ] Make a query builder for e.g `Model::search()->match('foo', 'bar')->get()`
 
 ## Done
-  - [x]  Automatically add the primary key to be indexed for subdocuments
+  - [x] Automatically add the primary key to be indexed for subdocuments
   - [x] Make subdocument querying (searching) possible
